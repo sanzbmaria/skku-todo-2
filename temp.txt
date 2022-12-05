@@ -1,0 +1,14 @@
+			buttonMoveUp.addEventListener("click", () => {
+				console.log('UP', tasks)
+
+				current_task = tasks.filter(t => t === task);
+				index_ct = tasks.indexOf(current_task[0]);
+
+				if (index_ct !== 0){
+					swap(tasks, index_ct, index_ct-1)
+					console.log('AFTER', tasks)
+					saveTasks();
+					location.reload();
+				}
+
+			});

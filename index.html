@@ -65,53 +65,106 @@
 
 			tasks = JSON.parse(lastTasks);
 			tasks.forEach(addToList);
+
 		}
 
 		function saveTasks() {
 			localStorage.setItem("tasks", JSON.stringify(tasks));
 		}
 
+		function swap(list, start, end) {
+			list.splice(start, 1, list.splice(end, 1, list[start])[0]);
+		}
+
 		function addToList(task) {
 			let div = document.createElement("div");
-			div.className = "task bg-light p-1 rounded-2 ps-2 d-flex align-items-center";
 
-			let span = document.createElement("span");
-			span.className = "me-auto";
-			span.textContent = task.text;
-			div.appendChild(span);
+				div.className = "task bg-light p-1 rounded-2 ps-2 d-flex align-items-center";
+				let span = document.createElement("span");
+				span.className = "me-auto";
+				span.textContent = task.text;
+				div.appendChild(span);
 
-			if (task.type === Type.Todo) {
-				let buttonDone = document.createElement("button");
-				buttonDone.className = "btn btn-sm btn-success me-1";
-				buttonDone.innerHTML = '<i class="bi bi-check"></i>';
-				div.appendChild(buttonDone);
+				if (task.type === Type.Todo) {
 
-				buttonDone.addEventListener("click", () => {
-					/* TODO */
+					let buttonMoveUp = document.createElement("button");
+					buttonMoveUp.className = "btn btn-sm btn-primary me-1";
+					buttonMoveUp.innerHTML = '<i class="bi bi-arrow-up"></i>';
+					div.appendChild(buttonMoveUp);
+
+					buttonMoveUp.addEventListener("click", () => {
+						current_task = tasks.filter(t => t === task);
+						index_ct = tasks.indexOf(current_task[0]);
+
+						if (index_ct !== 0){
+							swap(tasks, index_ct, index_ct-1)
+							saveTasks();
+							window.location.reload();
+						}
+
+					});
+
+					let buttonMoveDown = document.createElement("button");
+					buttonMoveDown.className = "btn btn-sm btn-primary me-1";
+					buttonMoveDown.innerHTML = '<i class="bi bi-arrow-down"></i>';
+					div.appendChild(buttonMoveDown);
+
+					buttonMoveDown.addEventListener("click", () => {
+						current_task = tasks.filter(t => t === task);
+						index_ct = tasks.indexOf(current_task[0]);
+
+						console.log(index_ct, tasks.length)
+
+						if (index_ct < tasks.length-1){
+							swap(tasks, index_ct, index_ct+1)
+							saveTasks();
+							window.location.reload();
+						}
+
+					});
+				}
+
+
+				if (task.type === Type.Todo) {
+					let buttonDone = document.createElement("button");
+					buttonDone.className = "btn btn-sm btn-success me-1";
+					buttonDone.innerHTML = '<i class="bi bi-check"></i>';
+					div.appendChild(buttonDone);
+
+					buttonDone.addEventListener("click", () => {
+						/* TODO */
+						task.type = Type.Done;
+						saveTasks();
+						window.location.reload();
+					});
+				}
+
+				let buttonRemove = document.createElement("button");
+				buttonRemove.className = "btn btn-sm btn-danger";
+				buttonRemove.innerHTML = '<i class="bi bi-x"></i>';
+				div.appendChild(buttonRemove);
+
+				buttonRemove.addEventListener("click", () => {
+					div.remove();
+					tasks = tasks.filter(t => t !== task);
+					saveTasks();
 				});
-			}
 
-			let buttonRemove = document.createElement("button");
-			buttonRemove.className = "btn btn-sm btn-danger";
-			buttonRemove.innerHTML = '<i class="bi bi-x"></i>';
-			div.appendChild(buttonRemove);
 
-			buttonRemove.addEventListener("click", () => {
-				div.remove();
-				tasks = tasks.filter(t => t !== task);
-				saveTasks();
-			});
+				let list = document.querySelector(task.type === Type.Todo ? "#todo-list" : "#done-list");
+				list.appendChild(div);
 
-			let list = document.querySelector(task.type === Type.Todo ? "#todo-list" : "#done-list");
-			list.appendChild(div);
+
+
+
 		}
 
 		window.addEventListener("load", () => {
 			loadTasks();
 		});
 
-		let button = document.querySelector("#add");
-		button.addEventListener("click", () => {
+
+		function onInput(){
 			// 1. Read the text in #task-input.
 			let input = document.querySelector("#task-input");
 			let text = input.value;
@@ -133,7 +186,20 @@
 
 			// 5. Clear #task-input.
 			input.value = "";
+		}
+
+
+		let button = document.querySelector("#add");
+		button.addEventListener("click", () => {
+			onInput();
 		});
+
+		document.querySelector('#task-input').addEventListener('keyup', (e)=>{
+    		if (e.keyCode === 13) {
+        		onInput();
+  			}
+		});
+
 	</script>
 </body>
 
