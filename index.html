@@ -95,11 +95,16 @@
 
         div.className =
           "task bg-light p-1 rounded-2 ps-2 d-flex align-items-center";
+
         let span = document.createElement("span");
+
+        // Give each div a unique id so that we can find it later
+        div.id = task.id;
         span.className = "me-auto";
         span.textContent = task.text;
         div.appendChild(span);
 
+        // MOVE UP
         if (task.type === Type.Todo) {
           let buttonMoveUp = document.createElement("buttonUp");
           buttonMoveUp.className = "btn btn-sm btn-primary me-1";
@@ -108,14 +113,19 @@
 
           buttonMoveUp.addEventListener("click", () => {
             current_task = tasks.filter((t) => t === task);
-            index_ct = tasks.indexOf(current_task[0]);
+            let div_to_move = document.getElementById(current_task[0].id);
 
-            if (index_ct !== 0) {
-              swap(tasks, index_ct, index_ct - 1);
+            if (div_to_move.previousSibling !== null) {
+              console.log("we can move");
+              div_to_move.parentNode.insertBefore(
+                div_to_move,
+                div_to_move.previousSibling
+              );
               saveTasks();
-              window.location.reload();
             }
           });
+
+          // MOVE DOWN
 
           let buttonMoveDown = document.createElement("buttonDown");
           buttonMoveDown.className = "btn btn-sm btn-primary me-1";
@@ -124,18 +134,19 @@
 
           buttonMoveDown.addEventListener("click", () => {
             current_task = tasks.filter((t) => t === task);
-            index_ct = tasks.indexOf(current_task[0]);
-
-            console.log(index_ct, tasks.length);
-
-            if (index_ct < tasks.length - 1) {
-              swap(tasks, index_ct, index_ct + 1);
+            let div_to_move = document.getElementById(current_task[0].id);
+            if (div_to_move.nextSibling !== null) {
+              console.log("we can move");
+              div_to_move.parentNode.insertBefore(
+                div_to_move.nextSibling,
+                div_to_move
+              );
               saveTasks();
-              window.location.reload();
             }
           });
         }
 
+        // DONE BUTTON
         if (task.type === Type.Todo) {
           let buttonDone = document.createElement("button");
           buttonDone.className = "btn btn-sm btn-success me-1";
@@ -156,6 +167,7 @@
           });
         }
 
+        // DELETE BUTTON
         let buttonRemove = document.createElement("button");
         buttonRemove.className = "btn btn-sm btn-danger";
         buttonRemove.innerHTML = '<i class="bi bi-x"></i>';
@@ -184,10 +196,14 @@
 
         if (!text.length) return;
 
+        // Generate unique id
+        let uniq = "id" + new Date().getTime();
+
         // 2. Create a new Task object.
         let task = {
           text: text,
           type: Type.Todo,
+          id: uniq,
         };
 
         // 3. Append the new Task object to tasks
